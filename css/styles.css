@@ -1,0 +1,8 @@
+@media print {
+    .topicsContainer {
+        display: none !important;
+    }
+    .topics{
+        width: 100% !important;
+    }
+}

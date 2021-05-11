@@ -1,0 +1,165 @@
+---
+title: "Lecture 3: Discrete Random Variables"
+output: 
+  learnr::tutorial:
+    css: css/styles.css
+runtime: shiny_prerendered
+---
+
+<!-- 
+Before running the document, make sure `learnr` package is available. 
+If missing, you can install the package with `install.packages('learnr')`.
+-->
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Discrete Distributions in R
+
+In the previous two R lessons, we used `sample` function to simulate random choices between a finite set of objects. Because all finite sets are countable, they are examples of _discrete_ distributions. 
+
+R also provides specific functions for common distributions. For each distribution, R provides 
+
++   **`dxxx`** for computing the pmf for discrete and pdf for continuous^1^ distribution;
++   **`pxxx`** for computing the cdf;
++   **`qxxx`** for computing quantiles^1^; and
++   **`rxxx`** for simulating a value from the distribution.
+
+See R's documentation on [distributions](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/Distributions) for a full list of distributions covered by default.
+
+_^1^We will cover continuous random variables and quantiles during next lecture._
+
+### Example: Multiple Choice Questions
+
+
+$$Y_i\sim\text{Ber}\left(\frac{1}{4}\right)\quad\text{for }i=1,2,3,\dots,10$$
+$$X=\sum_{i=1}^{10}Y_i\sim\text{Bin}\left(10,\frac{1}{4}\right)$$
+
+For a binomial distribution, we can use **`dbinom`**, **`pbinom`**, **`rbinom`**, and **`qbinom`**.
+
+To compute $p_X(x)$ for $x=0,1,2,3,\dots,10$, we use **`dbinom`**.
+
+```{r echo=TRUE}
+pmfX <- dbinom(0:10, 10, 1/4)
+# creating a data frame to represent data
+binomX <- data.frame(x = 0:10, pmf = pmfX) 
+binomX
+```
+
+We can use the pmf to compute the cdf or use **`pbinom`**.
+
+```{r pbinom, exercise=TRUE, exercise.lines=5}
+
+```
+
+----------------
+
+#### Side: Plotting with `ggplot2`
+
+```{r plotbinom, exercise=TRUE, exercise.lines=15, warning=F}
+library(ggplot2) # load the library
+ggplot(binomX, aes(x = x)) + # initialize a ggplot canvas with the data
+  theme_classic() + # optional: control the overall look with predefined themes
+  geom_bar(aes(y = pmf), stat = 'identity', width =  0.02) +
+  geom_point(aes(y = pmf)) 
+```
+
+```{r include=FALSE}
+library(ggplot2)
+binomX$cdf <- pbinom(0:10, 10, 1/4)
+```
+
+
+```{r echo=TRUE, warning=FALSE, message=FALSE}
+library(patchwork)
+library(tidyverse)
+ppmf <- ggplot(binomX, aes(x = x)) + 
+  theme_classic() + 
+  geom_bar(aes(y = pmf), stat = 'identity', width =  0.02) +
+  geom_point(aes(y = pmf)) +
+  labs(y = expression(p[X]), title = "Probability mass function") +
+  ylim(0,1)
+pcdf <- ggplot(binomX, aes(x = x, y = cdf)) + 
+  theme_classic() +
+  geom_segment(aes(xend = lead(x), yend = cdf), stat = 'identity', width =  0.02) +
+  geom_point() +
+  labs(y = expression(F[X]), title = "Cumulative distribution function") +
+  ylim(0,1)
+# plot both
+ppmf +  pcdf
+```
+
+----------------
+
+## Poisson and Binomial Distributions
+
+Read Example 3.48 from Devore and Berk's textbook Modern Mathematical Statistics with Applications and replicate Figure 3.8 with $\text{Bin}(30, .1)$, $\text{Bin}(100, .03)$, $\text{Bin}(300, .01)$, and $\text{Pois}(3)$. You may omit the vertical bars.
+
+```{r poisbin, exercise=TRUE, exercise.lines=20}
+x <- 0:10
+df <- data.frame(
+  x = x,
+  bin30 = dbinom(x, size = 30, prob = 0.1),
+  bin100 = numeric(11), # replace appropriately
+  bin300 = numeric(11), # replace appropriately
+  pois = numeric(11) # replace appropriately
+)
+ggplot(df, aes(x = x)) +
+  theme_minimal() +
+  geom_point(aes(y = bin30, pch = "Bin(30, 0.1)")) + # adding pch within mapping creates a legend based on point type
+  labs(y = "P(x)", pch = "Distribution")
+```
+
+
+## Simulating a Distribution
+
+### Example: Sum of a Fair Die
+
+_(Exercise 4.5 from MIPS)_
+
+A fair die is thrown until the sum of the results of the throws exceeds 6. The random variable $X$ is the number of throws needed for this. Let $F$ be the distribution function of $X$. Determine $F(1)$, $F(2)$, and $F(7)$.
+
+#### Approach 1
+
+```{r ex1, exercise=TRUE, exercise.lines=18}
+n <- 10^3
+# simulation approach 1
+res1 <- replicate(
+  n, {
+    x <- 0; s <- 0
+    while(s < 7) {
+      s <- s + sample(1:6, 1)
+      x <- x + 1
+    }
+    x
+  }
+)
+cat('F(1)=', sum(res1 <= 1)/n)
+cat('F(2)=', sum(res1 <= 2)/n)
+cat('F(7)=', sum(res1 <= 7)/n)
+```
+
+
+
+#### Approach 2
+
++  We know $X$ takes one of $\{2,3,4,5,6,7\}$.
+
+```{r ex2, exercise=TRUE, exercise.lines=15}
+n <- 10^6
+s <- matrix(
+  sample(1:6, n*7, replace = TRUE),
+  ncol = 7
+)
+apply(s, 1, sum) # applying a function over each row
+
+```
+
+#### Approach 3: Homework
+
+Compute the values without simulation. 
+
+
