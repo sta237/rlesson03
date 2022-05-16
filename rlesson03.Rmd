@@ -13,6 +13,7 @@ If missing, you can install the package with `install.packages('learnr')`.
 
 ```{r setup, include=FALSE}
 library(learnr)
+if (!require(patchwork)) install.packages("patchwork")
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
