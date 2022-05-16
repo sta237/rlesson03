@@ -63,7 +63,7 @@ We can use the pmf to compute the cdf or use **`pbinom`**.
 library(ggplot2) # load the library
 ggplot(binomN, aes(x = n)) + # initialize a ggplot canvas with the data
   theme_classic() + # optional: control the overall look with predefined themes
-  geom_bar(aes(y = pmf), stat = 'identity', width =  0.02) +
+  geom_segment(aes(y = pmf, yend = 0, xend = n)) +
   geom_point(aes(y = pmf)) 
 ```
 
@@ -81,7 +81,7 @@ binomN <- add_row(
   add_row(n = 11, pmf = 0, cdf = 1)
 ppmf <- ggplot(binomN, aes(x = n)) + 
   theme_classic() + 
-  geom_bar(aes(y = pmf), stat = 'identity', width =  0.02) +
+  geom_segment(aes(y = pmf, yend = 0, xend = n)) +
   geom_point(aes(y = pmf)) +
   labs(y = expression(p[N]), title = "Probability mass function") +
   scale_x_continuous(breaks = seq(0, 10, 5))
