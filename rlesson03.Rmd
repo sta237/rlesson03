@@ -76,7 +76,7 @@ binomN$cdf <- pbinom(0:10, 10, 1/4)
 library(patchwork)
 library(tidyverse)
 binomN <- add_row(
-  binomN, n = -1, pmf = 0, cdf = 0, .before = 1) |>
+  binomN, n = -1, pmf = 0, cdf = 0, .before = 1) %>%
   add_row(n = 11, pmf = 0, cdf = 1)
 ppmf <- ggplot(binomN, aes(x = n)) + 
   theme_classic() + 
