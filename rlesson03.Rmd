@@ -32,21 +32,20 @@ See R's documentation on [distributions](https://www.rdocumentation.org/packages
 
 _^1^We will cover continuous random variables and quantiles during next lecture._
 
-### Example: Multiple Choice Questions
+### Example: 10 rounds of Rock Paper Scissors
 
-
-$$Y_i\sim\text{Ber}\left(\frac{1}{4}\right)\quad\text{for }i=1,2,3,\dots,10$$
-$$X=\sum_{i=1}^{10}Y_i\sim\text{Bin}\left(10,\frac{1}{4}\right)$$
+$$W_i\sim\text{Ber}(1/3)\quad\text{for }i = 1,2,...,10$$
+$$N=\sum_{i=1}^{10} W_i\sim\text{Bin}(10,1/3)$$
 
 For a binomial distribution, we can use **`dbinom`**, **`pbinom`**, **`rbinom`**, and **`qbinom`**.
 
-To compute $p_X(x)$ for $x=0,1,2,3,\dots,10$, we use **`dbinom`**.
+To compute $p_N(n)$ for $n=0,1,2,3,\dots,10$, we use **`dbinom`**.
 
 ```{r echo=TRUE}
-pmfX <- dbinom(0:10, 10, 1/4)
+pmfN <- dbinom(0:10, 10, 1/4)
 # creating a data frame to represent data
-binomX <- data.frame(x = 0:10, pmf = pmfX) 
-binomX
+binomN <- data.frame(n = 0:10, pmf = pmfN) 
+binomN
 ```
 
 We can use the pmf to compute the cdf or use **`pbinom`**.
@@ -61,7 +60,7 @@ We can use the pmf to compute the cdf or use **`pbinom`**.
 
 ```{r plotbinom, exercise=TRUE, exercise.lines=15, warning=F}
 library(ggplot2) # load the library
-ggplot(binomX, aes(x = x)) + # initialize a ggplot canvas with the data
+ggplot(binomN, aes(x = n)) + # initialize a ggplot canvas with the data
   theme_classic() + # optional: control the overall look with predefined themes
   geom_bar(aes(y = pmf), stat = 'identity', width =  0.02) +
   geom_point(aes(y = pmf)) 
@@ -69,25 +68,29 @@ ggplot(binomX, aes(x = x)) + # initialize a ggplot canvas with the data
 
 ```{r include=FALSE}
 library(ggplot2)
-binomX$cdf <- pbinom(0:10, 10, 1/4)
+binomN$cdf <- pbinom(0:10, 10, 1/4)
 ```
 
 
-```{r echo=TRUE, warning=FALSE, message=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 library(patchwork)
 library(tidyverse)
-ppmf <- ggplot(binomX, aes(x = x)) + 
+binomN <- add_row(
+  binomN, n = -1, pmf = 0, cdf = 0, .before = 1) |>
+  add_row(n = 11, pmf = 0, cdf = 1)
+ppmf <- ggplot(binomN, aes(x = n)) + 
   theme_classic() + 
   geom_bar(aes(y = pmf), stat = 'identity', width =  0.02) +
   geom_point(aes(y = pmf)) +
-  labs(y = expression(p[X]), title = "Probability mass function") +
-  ylim(0,1)
-pcdf <- ggplot(binomX, aes(x = x, y = cdf)) + 
+  labs(y = expression(p[N]), title = "Probability mass function") +
+  scale_x_continuous(breaks = seq(0, 10, 5))
+pcdf <- ggplot(binomN, aes(x = n, y = cdf)) + 
   theme_classic() +
-  geom_segment(aes(xend = lead(x), yend = cdf), stat = 'identity', width =  0.02) +
-  geom_point() +
-  labs(y = expression(F[X]), title = "Cumulative distribution function") +
-  ylim(0,1)
+  geom_segment(aes(xend = lead(n), yend = cdf), stat = 'identity') +
+  geom_point(data = filter(binomN, n > -1, n < 11)) +
+  labs(y = expression(F[N]), title = "Cumulative distribution function") +
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(limits = c(-1, 11), breaks = seq(0, 10, 5))
 # plot both
 ppmf +  pcdf
 ```
