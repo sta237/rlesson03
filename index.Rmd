@@ -1,0 +1,371 @@
+---
+title: "Lecture 3: Discrete Random Variables"
+output: 
+  learnr::tutorial:
+    css: css/styles.css
+runtime: shiny_prerendered
+---
+
+<!-- 
+Before running the document, make sure `learnr` package is available. 
+If missing, you can install the package with `install.packages('learnr')`.
+-->
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Preparation
+
+### Conditional Statements
+
+`if` statement takes a condition and evaluates the immediately following 
+expressions(s) only when the condition evaluates to `TRUE`. You can use `{` to
+indicate which set of expressions should be evaluated conditionally.
+
+You can specify the expression(s) to run when the condition evaluates to `FALSE`
+using `else`. `else` statement should follow immediately after the expression(s)
+for the `if` statement.
+
+If you have more than one condition to check, you can place them in order using
+`else if` statement. `else` statement must be placed at the end if there is one.
+The statements are evaluated in order and when a condition evaluates to `TRUE`,
+R skips the remaining statements.
+
+You can omit `else` when no action is required if all conditions are `FALSE`.
+
+
+```{r}
+#| eval: false
+if (<condition 1>) {
+  <expressions to run when condition 1 is TRUE>
+} else if (<condition 2>) {
+  <expressions to run when condition 1 is FALSE and condition 2 is TRUE>
+} else {
+  <expressions to run when FALSE>
+}
+<expressions run regardless of the condition>
+```
+
+> For simple conditional operations where you are assigning a single variable
+conditionally, you can often use `ifelse()` and abbreviate your code. 
+See `?ifelse`.
+
+### Common distributions in R
+
+In the previous two R lessons, we used `sample` function to simulate random choices between a finite set of objects. Because all finite sets are countable, they are examples of _discrete_ distributions. 
+
+R also provides specific functions for common distributions. For each distribution, R provides 
+
++   **`dxxx`** for computing the pmf for discrete and pdf for continuous^1^ distribution;
++   **`pxxx`** for computing the cdf;
++   **`qxxx`** for computing quantiles^1^; and
++   **`rxxx`** for simulating a value from the distribution.
+
+See R's documentation on distributions for a full list of distributions covered by default.
+
+```{r distributions, exercise=TRUE}
+?distributions
+```
+
+_^1^We will cover continuous random variables and quantiles during next lecture._
+
+
+### Practice
+
+Find the appropriate function for generating random samples from a Poisson 
+distribution and complete the following code chunk so that it prints a true
+statements every time you run where `Y` is sum of 3 Poisson variables with
+$\lambda=5$.
+
+```{r completerpois, exercise=TRUE, exercise.lines=15}
+Y <- # add 3 randomly generated Poisson variables
+print(paste("Y is ", Y))
+if ( ) {
+  print("Y is greater than 17.")
+} else if ( ) {
+  print("Y is less than or equal to 17.")
+} else {
+  print("Y is less than 15.")
+}
+```
+
+```{r completerpois-hint}
+paste("STA", "237", "H") # concatenates two or more character values together
+```
+
+```{r completerpois-solution}
+Y <- sum(rpois(3, 5))
+print(paste("Y is ", Y))
+if (Y > 17) {
+  print("Y is greater than 17.")
+} else if (Y >= 10) {
+  print("Y is less than or equal to 17.")
+} else {
+  print("Y is less than 15.")
+}
+```
+
+## Simulating Rock Paper Scissors
+
+Recall the example from class. Winners take \$3, \$2, and \$1 from the loser
+when the winner wins with a rock, a paper, and scissors respectively. If it's
+a tie, both players lose \$3.
+
+Let $S$ be the random variable representing the net dollar amount you earn
+after player 3 rounds with a friend. Estimate $P(S>5)$ using `1,000,000` rounds
+of simulations.
+
+```{r rps, exercise=TRUE, exercise.lines=25}
+N <- 100 # start with a smaller number of simulations as you work on your code
+winning_hand <- matrix(
+  sample(c("Rock", "Paper", "Scissors"), N * 3, replace = TRUE),
+  nrow = N
+)
+winner <- matrix(
+  sample(c("You", "Friend", "Tie"), N * 3, replace = TRUE),
+  nrow = N
+)
+you_earn <- numeric(N)
+for (i in seq_len(N)) {
+  if () { # in the the case of winning
+    
+  } else if () { # in the the case of losing
+    
+  } else {
+    
+  }
+}
+```
+
+```{r rps-hint-1, exercise.lines=25}
+N <- 100 
+winning_hand <- matrix(
+  sample(c("Rock", "Paper", "Scissors"), N * 3, replace = TRUE),
+  nrow = N
+)
+winner <- matrix(
+  sample(c("You", "Friend", "Tie"), N * 3, replace = TRUE),
+  nrow = N
+)
+you_earn <- numeric(N)
+for (i in seq_len(N)) {
+  for (j in seq_len(3)) {
+    if (winner[i, j] == "You") { # in the the case of winning
+      # the amount depends on the winner's hand
+    } else if (winner[i, j] == "Friend") { # in the the case of losing
+      # the amount depends on the winner's hand
+    } else {
+      # this is when the game is tied and you automatically lose $3
+      you_earn[i] <- you_earn[i] - 3
+    } 
+  }
+}
+sum(you_earn > 5) / N
+```
+
+```{r rps-hint-2, exercise.lines=25}
+N <- 1000000
+winning_hand <- matrix(
+  sample(c("Rock", "Paper", "Scissors"), N * 3, replace = TRUE),
+  nrow = N
+)
+winner <- matrix(
+  sample(c("You", "Friend", "Tie"), N * 3, replace = TRUE),
+  nrow = N
+)
+you_earn <- numeric(N)
+for (i in seq_len(N)) {
+  for (j in seq_len(3)) {
+    if (winner[i, j] == "You") { # in the the case of winning
+      # what happens if you omit else?
+      if (winning_hand[i, j] == "Rock") {
+        you_earn[i] <- you_earn[i] + 1
+      }
+      if (winning_hand[i, j] == "Paper") {
+        you_earn[i] <- you_earn[i] + 2
+      } 
+      if (winning_hand[i, j] == "Scissors") {
+        you_earn[i] <- you_earn[i] + 3
+      }
+    } else if (winner[i, j] == "Friend") { # in the the case of losing
+      if (winning_hand[i, j] == "Rock") {
+        you_earn[i] <- you_earn[i] - 1
+      }
+      if (winning_hand[i, j] == "Paper") {
+        you_earn[i] <- you_earn[i] - 2
+      } 
+      if (winning_hand[i, j] == "Scissors") {
+        you_earn[i] <- you_earn[i] - 3
+      }
+    } else {
+      # this is when the game is tied and you automatically lose $3
+      you_earn[i] <- you_earn[i] - 3
+    } 
+  }
+}
+sum(you_earn > 5) / N
+```
+
+```{r rps-hint-3, exercise.lines=25}
+# you can avoid using the loop
+N <- 1000000
+winning_hand <- matrix(
+  sample(c("Rock", "Paper", "Scissors"), N * 3, replace = TRUE),
+  nrow = N
+)
+winner <- matrix(
+  sample(c("You", "Friend", "Tie"), N * 3, replace = TRUE),
+  nrow = N
+)
+amount <- ifelse(
+  winner == "Tie",
+  3, # when the game is a tie the amount is 3
+  ifelse( # check for the winner's hand
+    winning_hand == "Rock", 1, 
+    ifelse(winning_hand == "Paper", 2, 3)
+  )
+)
+earn_or_lose <- ifelse(winner == "You", 1, -1) # 1 for your earning, -1 for your loss
+you_earn <- rowSums(amount * earn_or_lose)
+sum(you_earn > 5) / N
+```
+
+> You may use `seq_len(N)` in place of  `1:N`.
+
+<!-- data frame and plotting next -->
+<!-- ## Poisson and Binomial Distributions -->
+
+<!-- Read Example 3.48 from Devore and Berk's textbook Modern Mathematical Statistics with Applications and replicate Figure 3.8 with $\text{Bin}(30, .1)$, $\text{Bin}(100, .03)$, $\text{Bin}(300, .01)$, and $\text{Pois}(3)$. You may omit the vertical bars. -->
+
+<!-- ```{r poisbin, exercise=TRUE, exercise.lines=20} -->
+<!-- x <- 0:10 -->
+<!-- df <- data.frame( -->
+<!--   x = x, -->
+<!--   bin30 = dbinom(x, size = 30, prob = 0.1), -->
+<!--   bin100 = numeric(11), # replace appropriately -->
+<!--   bin300 = numeric(11), # replace appropriately -->
+<!--   pois = numeric(11) # replace appropriately -->
+<!-- ) -->
+<!-- ggplot(df, aes(x = x)) + -->
+<!--   theme_minimal() + -->
+<!--   geom_point(aes(y = bin30, pch = "Bin(30, 0.1)")) + # adding pch within mapping creates a legend based on point type -->
+<!--   labs(y = "P(x)", pch = "Distribution") -->
+<!-- ``` -->
+
+
+<!-- ## Side: Plotting with `ggplot2` -->
+
+<!-- ```{r plotbinom, exercise=TRUE, exercise.lines=15, warning=F} -->
+<!-- library(ggplot2) # load the library -->
+<!-- ggplot(binomN, aes(x = n)) + # initialize a ggplot canvas with the data -->
+<!--   theme_classic() + # optional: control the overall look with predefined themes -->
+<!--   geom_segment(aes(y = pmf, yend = 0, xend = n)) + -->
+<!--   geom_point(aes(y = pmf)) -->
+<!-- ``` -->
+
+<!-- ```{r include=FALSE} -->
+<!-- library(ggplot2) -->
+<!-- binomN$cdf <- pbinom(0:10, 10, 1/4) -->
+<!-- ``` -->
+
+
+<!-- ```{r echo=FALSE, warning=FALSE, message=FALSE} -->
+<!-- library(patchwork) -->
+<!-- library(tidyverse) -->
+<!-- binomN <- add_row( -->
+<!--   binomN, n = -1, pmf = 0, cdf = 0, .before = 1) %>% -->
+<!--   add_row(n = 11, pmf = 0, cdf = 1) -->
+<!-- ppmf <- ggplot(binomN, aes(x = n)) + -->
+<!--   theme_classic() + -->
+<!--   geom_segment(aes(y = pmf, yend = 0, xend = n)) + -->
+<!--   geom_point(aes(y = pmf)) + -->
+<!--   labs(y = expression(p[N]), title = "Probability mass function") + -->
+<!--   scale_x_continuous(breaks = seq(0, 10, 5)) -->
+<!-- pcdf <- ggplot(binomN, aes(x = n, y = cdf)) + -->
+<!--   theme_classic() + -->
+<!--   geom_segment(aes(xend = lead(n), yend = cdf), stat = 'identity') + -->
+<!--   geom_point(data = filter(binomN, n > -1, n < 11)) + -->
+<!--   labs(y = expression(F[N]), title = "Cumulative distribution function") + -->
+<!--   scale_y_continuous(limits = c(0, 1)) + -->
+<!--   scale_x_continuous(limits = c(-1, 11), breaks = seq(0, 10, 5)) -->
+<!-- # plot both -->
+<!-- ppmf +  pcdf -->
+<!-- ``` -->
+
+
+## Example: Sum of a Fair Die
+
+_(Exercise 4.5 from Dekking et al.)_
+
+A fair die is thrown until the sum of the results of the throws exceeds 6. The random variable $X$ is the number of throws needed for this. Let $F$ be the cumulative distribution function of $X$. Determine $F(1)$, $F(2)$, and $F(7)$.
+
+### Approach 1
+
+> We know $X$ does not exceed $7$. We can 1) simulate 7 rolls in each iteration,
+2) add individual rolls until the sum exceeds 6, and 3) `break` to stop the loop 
+for adding the rolls.
+
+```{r ex2, exercise=TRUE, exercise.lines=15}
+N <- 1000000
+rolls <- matrix(
+  sample(1:6, N * 7, replace = TRUE),
+  nrow = N
+)
+X <- numeric(N)
+for (i in seq_len(N)) {
+  for (j in 2:7) {
+    s <- sum(rolls[i, (1:j)]) # sum up to j
+    if (s > 6) { # check whether it exceeds 6
+      X[i] <- j  # store j if it exceeds 6
+      break
+    }
+  }
+}
+sum(X <= 1) / N
+sum(X <= 2) / N
+sum(X <= 7) / N
+```
+
+### Approach 2
+
+> `while ()` is another type of loop similar to `for ()` except it loops _while_
+the condition inside `()` is `TRUE`. It can run indefinitely if the condition
+is always `TRUE`.
+
+```{r ex1, exercise=TRUE, exercise.lines=18}
+N <- 1000
+X <- numeric(N)
+for (i in seq_len(N)) {
+  sum_of_rolls <- 0
+  while (sum_of_rolls < 7) {
+    # roll the die and add to the number of rolls
+  }
+} 
+sum(X <= 1) / N
+sum(X <= 2) / N
+sum(X <= 7) / N
+```
+
+```{r ex1-solution, exercise=TRUE, exercise.lines=18}
+N <- 1000000
+X <- numeric(N)
+for (i in seq_len(N)) {
+  sum_of_rolls <- 0
+  while (sum_of_rolls < 7) {
+    sum_of_rolls <- sum_of_rolls + sample(1:6, 1)
+    X[i] <- X[i] + 1
+  }
+} 
+sum(X <= 1) / N
+sum(X <= 2) / N
+sum(X <= 7) / N
+```
+
+
+### Approach 3: Homework
+
+Compute the values without simulation.
+
+
