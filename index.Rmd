@@ -139,7 +139,7 @@ for (i in seq_len(N)) {
 }
 ```
 
-```{r rps-hint-1, exercise.lines=25}
+```{r rps-hint-1}
 N <- 100 
 winning_hand <- matrix(
   sample(c("Rock", "Paper", "Scissors"), N * 3, replace = TRUE),
@@ -165,7 +165,7 @@ for (i in seq_len(N)) {
 sum(you_earn > 5) / N
 ```
 
-```{r rps-hint-2, exercise.lines=25}
+```{r rps-hint-2}
 N <- 1000000
 winning_hand <- matrix(
   sample(c("Rock", "Paper", "Scissors"), N * 3, replace = TRUE),
@@ -208,7 +208,7 @@ for (i in seq_len(N)) {
 sum(you_earn > 5) / N
 ```
 
-```{r rps-hint-3, exercise.lines=25}
+```{r rps-hint-3}
 # you can avoid using the loop
 N <- 1000000
 winning_hand <- matrix(
@@ -317,6 +317,25 @@ X <- numeric(N)
 for (i in seq_len(N)) {
   for (j in 2:7) {
     s <- sum(rolls[i, (1:j)]) # sum up to j
+    # check whether it exceeds 6
+    # store j and break out of the loop if it exceeds 6 
+  }
+}
+sum(X <= 1) / N
+sum(X <= 2) / N
+sum(X <= 7) / N
+```
+
+```{r ex2-solution}
+N <- 1000000
+rolls <- matrix(
+  sample(1:6, N * 7, replace = TRUE),
+  nrow = N
+)
+X <- numeric(N)
+for (i in seq_len(N)) {
+  for (j in 2:7) {
+    s <- sum(rolls[i, (1:j)]) # sum up to j
     if (s > 6) { # check whether it exceeds 6
       X[i] <- j  # store j if it exceeds 6
       break
@@ -327,7 +346,6 @@ sum(X <= 1) / N
 sum(X <= 2) / N
 sum(X <= 7) / N
 ```
-
 ### Approach 2
 
 > `while ()` is another type of loop similar to `for ()` except it loops _while_
@@ -348,7 +366,7 @@ sum(X <= 2) / N
 sum(X <= 7) / N
 ```
 
-```{r ex1-solution, exercise=TRUE, exercise.lines=18}
+```{r ex1-solution}
 N <- 1000000
 X <- numeric(N)
 for (i in seq_len(N)) {
